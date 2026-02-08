@@ -1,47 +1,44 @@
-# Thesis Text Data Analysis
+# 碩士論文關鍵詞與共現分析工具
 
-簡短說明（中文）
+## 專案概述
 
-## 介紹
-這個專案是一個簡單的文本分析小工具，用來處理碩士論文／學術文章的文本（支援日文與中文），功能包括：
-- 從 PDF 提取文字（使用 Apache PDFBox）
-- 日文斷詞（使用 Lucene Kuromoji）與中文斷詞（jieba，專案已加入依賴但範例主要使用日文）
-- 計算 TF-IDF、找出 Top 關鍵詞
-- 基於句子計算關鍵詞共現
-- 將結果輸出為條狀圖（PNG，使用 JFreeChart）
+這是一個用來分析碩士論文文字內容的 Java 小工具，專門針對論文：
 
-## 需求
-- JDK 17
-- Maven 3.x
+**《考察圍繞精神疾病者的社會環境之研究 ─ 通通過台灣、日本的比較》**  
+**A Study Examining the Social Environment of Mentally Ill Patients by a Comparison between Taiwan & Japan**
 
-## 建置
-在專案根目錄（包含 `pom.xml`）執行：
+作者：洪翊倫  
+完成年份：2022
 
-```powershell
-mvn -DskipTests package
-```
+工具主要功能是從論文 PDF 自動提取關鍵詞（使用 TF-IDF），並分析關鍵詞之間的共現關係，產生視覺化長條圖，幫助快速掌握論文的主題重點與概念關聯。
 
-成功後會在 `target/` 下產生可執行的 shaded JAR（包含依賴）。
+## 功能特色
 
-## 執行
-1. 將欲分析的 PDF 檔案命名為 `論文.pdf` 並放在專案根目錄，或修改 `src/main/java/org/light/ThesisTFIDFAnalysis.java` 中的 `pdfPath` 變數為你的檔案路徑。
-2. 在專案根目錄執行：
+- 讀取 PDF 檔案（支援日文、中文、英文混排）
+- 使用 Lucene JapaneseTokenizer 進行日文斷詞
+- 計算 TF-IDF 關鍵詞重要性（支援 log-TF 與 DF 門檻）
+- 計算句子級別的關鍵詞共現
+- 自動產生兩張 PNG 圖表：
+    - TF-IDF 關鍵詞排行圖
+    - 關鍵詞共現強度圖
+- 內建大量停用詞清單（功能詞、論文通用詞、參考文獻雜訊、英文縮寫等）
 
-```powershell
-java -jar target\thesis-text-analysis-1.0-SNAPSHOT.jar
-```
+## 使用方式
 
-程式會輸出兩張圖檔：
-- `tfidf_keywords.png`（TF-IDF 前 20）
-- `cooccurrence_keywords.png`（共現前 20）
+1. 將論文 PDF 檔命名為 `論文.pdf`，放在與程式相同的資料夾
+2. 執行 `ThesisTFIDFAnalysis.java` 的 `main` 方法
+3. 程式會自動產生：
+    - `tfidf_keywords.png`：TF-IDF 關鍵詞排行
+    - `cooccurrence_keywords.png`：關鍵詞共現排行
+4. 控制台會顯示 Top 關鍵詞與 Top 共現詞對，以及斷詞與過濾過程的 debug 資訊
 
-圖檔會輸出到專案執行的當前目錄。
+## 主要參數調整
 
-## 常見問題
-- 如果遇到字型顯示亂碼，請在 `ThesisTFIDFAnalysis#createBarChart` 中將 `Font` 改為你系統支援的中文字型（如 `Meiryo`、`Yu Gothic`、`MS UI Gothic` 等）。
-- 若要改為處理多個 PDF 或改變停用詞，可修改程式碼中的對應邏輯。
+位於程式開頭的常數：
 
-## 開發者註記
-主程式：`src/main/java/org/light/ThesisTFIDFAnalysis.java`
-
-如果你需要我把程式改成可以傳入參數（例如指定 PDF 路徑、輸出目錄），我可以幫你實作。
+```java
+private static final int END_PAGE = 154;           // 只讀取到第幾頁（避開參考文獻）
+private static final int TOP_N = 20;               // 顯示前幾名
+private static final int MIN_DF = 5;               // 詞至少出現在幾個文件
+private static final int PARA_SENTENCE_GROUP = 5;  // 合併段落時每幾句一組
+private static final boolean USE_LOG_TF = true;    // 是否使用 log-scaled TF
