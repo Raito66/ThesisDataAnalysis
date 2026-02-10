@@ -406,7 +406,7 @@ public class ThesisTFIDFAnalysis {
         Font font = new Font("MS UI Gothic", Font.PLAIN, 16);
         applyFont(chart, font);
         try {
-            ChartUtils.saveChartAsPNG(new File(outputFile), chart, 7500, 800);
+            ChartUtils.saveChartAsPNG(new File(outputFile), chart, 8500, 800);
         } catch (IOException e) {
             logger.error("圖檔儲存失敗: {}", outputFile, e);
             throw new RuntimeException("圖檔儲存失敗: " + outputFile, e);
